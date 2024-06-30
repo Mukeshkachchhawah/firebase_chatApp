@@ -1,28 +1,37 @@
+import 'package:chat_application/firebase_provider/firebase_provider.dart';
+import 'package:chat_application/modal/message_modal.dart';
+import 'package:chat_application/screens/chat_bubbes.dart';
+import 'package:chat_application/ui_helper.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
 class ChatView extends StatefulWidget {
   final String userName;
+  String toId;
 
-  const ChatView({super.key, required this.userName});
+  ChatView({super.key, required this.userName, this.toId = ""});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ChatViewState createState() => _ChatViewState();
 }
 
 class _ChatViewState extends State<ChatView> {
-  final TextEditingController _messageController = TextEditingController();
-  final List<String> _messages = [];
+  final TextEditingController messageController = TextEditingController();
   bool _isEmojiVisible = false;
+  bool hasContent = false;
+  Stream<QuerySnapshot<Map<String, dynamic>>>? chatStream;
 
-  void _sendMessage() {
-    if (_messageController.text.isNotEmpty) {
-      setState(() {
-        _messages.add(_messageController.text);
-        _messageController.clear();
-        _isEmojiVisible = false; // Hide emoji picker after sending a message
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    getChatStream();
+  }
+
+  getChatStream() async {
+    chatStream = await FirebaseProvider.getAllMessage(widget.toId);
+    setState(() {});
   }
 
   void _toggleEmojiPicker() {
@@ -32,7 +41,7 @@ class _ChatViewState extends State<ChatView> {
   }
 
   void _onEmojiSelected(Emoji emoji) {
-    _messageController.text += emoji.emoji;
+    messageController.text += emoji.emoji;
   }
 
   @override
@@ -44,29 +53,30 @@ class _ChatViewState extends State<ChatView> {
       body: Column(
         children: [
           Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.only(bottom: 80),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Align(
-                    alignment: Alignment.centerRight,
-                    child: Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _messages[index],
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
+              child: StreamBuilder(
+            stream: chatStream,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
                 );
-              },
-            ),
-          ),
+              }
+              if (snapshot.hasData) {
+                var allMassage = snapshot.data!.docs;
+                return allMassage.isNotEmpty
+                    ? ListView.builder(
+                        itemCount: snapshot.data!.docs.length,
+                        itemBuilder: (context, index) {
+                          var currMsg =
+                              MessageModel.fromJson(allMassage[index].data());
+                          return ChatBubblesWidget(msg: currMsg);
+                        },
+                      )
+                    : const Center(child: Text("No Chat"));
+              }
+              return Container();
+            },
+          )),
           _buildInputField(),
           _isEmojiVisible ? _buildEmojiPicker() : Container(),
         ],
@@ -75,36 +85,63 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Widget _buildInputField() {
-    return Row(
-      children: [
-        Expanded(
-            child: SearchBar(
-          controller: _messageController,
-          hintText: 'Enter your message...',
-          leading: IconButton(
-            icon: Icon(Icons.emoji_emotions),
-            onPressed: _toggleEmojiPicker,
-          ),
-          trailing: [
-            IconButton(
-              icon: Icon(Icons.attach_file),
-              onPressed: () {
-                // Handle media selection (e.g., file picker)
-              },
+    return Padding(
+      padding: const EdgeInsets.all(15.0),
+      child: Row(
+        children: [
+          Expanded(
+              child: SearchBar(
+            controller: messageController,
+            hintText: 'Enter your message...',
+            onChanged: (text) {
+              setState(() {
+                hasContent = text.isNotEmpty;
+              });
+            },
+            leading: IconButton(
+              icon: const Icon(Icons.emoji_emotions),
+              onPressed: _toggleEmojiPicker,
             ),
-            IconButton(
-              icon: Icon(Icons.camera_alt_outlined),
-              onPressed: () {
-                // Handle media selection (e.g., file picker)
-              },
-            )
-          ],
-        )),
-        IconButton(
-          icon: Icon(Icons.send),
-          onPressed: _sendMessage,
-        ),
-      ],
+            trailing: [
+              IconButton(
+                icon: const Icon(Icons.attach_file),
+                onPressed: () {
+                  // Handle media selection (e.g., file picker)
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.camera_alt_outlined),
+                onPressed: () {
+                  // Handle media selection (e.g., file picker)
+                },
+              )
+            ],
+          )),
+          hasContent
+              ? InkWell(
+                  onTap: () {
+                    print("Click Send Massager");
+                    FirebaseProvider.sendMsg(
+                        messageController.text.toString(), widget.toId);
+                    messageController.text = "";
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.purple,
+                    child: Icon(
+                      Icons.send,
+                      color: Colors.white,
+                    ),
+                  ),
+                )
+              : const CircleAvatar(
+                  backgroundColor: Colors.purple,
+                  child: Icon(
+                    Icons.mic,
+                    color: Colors.white,
+                  ),
+                ),
+        ],
+      ),
     );
   }
 
@@ -115,7 +152,7 @@ class _ChatViewState extends State<ChatView> {
         onEmojiSelected: (category, emoji) {
           _onEmojiSelected(emoji);
         },
-        config: Config(),
+        config: const Config(),
       ),
     );
   }

@@ -1,9 +1,12 @@
 import 'package:chat_application/contans/app_png_logo.dart';
-import 'package:chat_application/modal/user_data_modal.dart';
+import 'package:chat_application/firebase_provider/firebase_provider.dart';
 import 'package:chat_application/screens/home_view.dart';
 import 'package:chat_application/ui_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../splash_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -22,6 +25,8 @@ class _LoginViewState extends State<LoginView> {
   var passwordController = TextEditingController();
   var confirmPassController = TextEditingController();
   var phoneNoController = TextEditingController();
+
+  bool isCheckPassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -72,6 +77,7 @@ class _LoginViewState extends State<LoginView> {
               controller: emailController,
               decoration: InputDecoration(
                 hintText: "Email",
+                hintStyle: TextStyle(fontSize: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -88,11 +94,22 @@ class _LoginViewState extends State<LoginView> {
               controller: passwordController,
               decoration: InputDecoration(
                 hintText: "Password",
+                hintStyle: TextStyle(fontSize: 14),
+                suffixIcon: IconButton(
+                  icon: Icon(isCheckPassword
+                      ? Icons.visibility
+                      : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      isCheckPassword = !isCheckPassword;
+                    });
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              obscureText: true,
+              obscureText: !isCheckPassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -121,6 +138,8 @@ class _LoginViewState extends State<LoginView> {
                           .instance
                           .signInWithEmailAndPassword(
                               email: mEmail, password: mPassword);
+                      var sp = await SharedPreferences.getInstance();
+                      sp.setBool(SplashViewState.LOGIN_KEY, true);
 
                       Navigator.push(
                         context,
@@ -296,33 +315,24 @@ class _LoginViewState extends State<LoginView> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
+                
                   if (registerFormKey.currentState!.validate()) {
-                    var mUserName = firstNameController.text.toString();
-                    var mLastName = lastNameController.text.toString();
-                    var mEmail = emailController.text.toString();
-                    var mPhoneNo = phoneNoController.text.toString();
-                    var mPassword = passwordController.text.toString();
-
-                    var auth = FirebaseAuth.instance;
-
                     try {
-                      UserCredential userCredential =
-                          await auth.createUserWithEmailAndPassword(
-                              email: mEmail, password: mPassword);
+                      FirebaseProvider.createUserWithEmailAndPassword(
+                          email: emailController.text.trim(),
+                          password: passwordController.text.trim(),
+                          firstNameValue: firstNameController.text.trim(),
+                          lastNameValue: lastNameController.text.trim(),
+                          phoneValue: phoneNoController.text.trim());
 
-                      var userDataModal = UserDataModal(
-                        uFirstName: mUserName,
-                        uLastName: mLastName,
-                        uEmail: mEmail,
-                        uPhoneNumber: mPhoneNo,
-                      );
+                      registerFormKey.currentState!.reset();
 
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const HomeView(),
-                        ),
-                      );
+                      firstNameController.clear();
+                      lastNameController.clear();
+                      emailController.clear();
+                      phoneNoController.clear();
+                      passwordController.clear();
+                      confirmPassController.clear();
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'weak-password') {
                         ScaffoldMessenger.of(context).showSnackBar(
