@@ -1,11 +1,11 @@
 import 'package:chat_application/firebase_provider/firebase_provider.dart';
 import 'package:chat_application/modal/message_modal.dart';
 import 'package:chat_application/screens/chat_bubbes.dart';
-import 'package:chat_application/ui_helper.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 
+// ignore: must_be_immutable
 class ChatView extends StatefulWidget {
   final String userName;
   String toId;

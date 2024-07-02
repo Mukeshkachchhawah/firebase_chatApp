@@ -315,7 +315,6 @@ class _LoginViewState extends State<LoginView> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () async {
-                
                   if (registerFormKey.currentState!.validate()) {
                     try {
                       FirebaseProvider.createUserWithEmailAndPassword(

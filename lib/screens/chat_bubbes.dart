@@ -104,23 +104,24 @@ class _ChatBubblesWidgetState extends State<ChatBubblesWidget> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Flexible(
-          child: Container(
-            margin: const EdgeInsets.all(11),
-            padding: const EdgeInsets.all(11),
-            decoration: BoxDecoration(
-                color: Colors.blue.shade100,
-                borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(21),
-                    topRight: Radius.circular(21),
-                    bottomRight: Radius.circular(21))),
-            child: Text(widget.msg.message),
+        Container(
+          margin: const EdgeInsets.all(11),
+          padding: const EdgeInsets.all(11),
+          decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(21),
+                  topRight: Radius.circular(21),
+                  bottomRight: Radius.circular(21))),
+          child: Row(
+            children: [
+              Text(widget.msg.message),
+              wSpace(mWidth: 5),
+              Text(sentTime.format(context))
+            ],
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(right: 8.0),
-          child: Text('${sentTime.format(context)}'),
-        ),
+       
       ],
     );
   }
