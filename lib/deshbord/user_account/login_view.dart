@@ -18,7 +18,6 @@ class LoginView extends StatefulWidget {
 class _LoginViewState extends State<LoginView> {
   var loginFormKey = GlobalKey<FormState>();
   var registerFormKey = GlobalKey<FormState>();
-
   var firstNameController = TextEditingController();
   var lastNameController = TextEditingController();
   var emailController = TextEditingController();
@@ -34,7 +33,7 @@ class _LoginViewState extends State<LoginView> {
       length: 2, // Number of tabs
       child: Scaffold(
         body: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
               hSpace(mHeight: 100),
@@ -77,7 +76,7 @@ class _LoginViewState extends State<LoginView> {
               controller: emailController,
               decoration: InputDecoration(
                 hintText: "Email",
-                hintStyle: TextStyle(fontSize: 14),
+                hintStyle: const TextStyle(fontSize: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -94,7 +93,7 @@ class _LoginViewState extends State<LoginView> {
               controller: passwordController,
               decoration: InputDecoration(
                 hintText: "Password",
-                hintStyle: TextStyle(fontSize: 14),
+                hintStyle: const TextStyle(fontSize: 14),
                 suffixIcon: IconButton(
                   icon: Icon(isCheckPassword
                       ? Icons.visibility

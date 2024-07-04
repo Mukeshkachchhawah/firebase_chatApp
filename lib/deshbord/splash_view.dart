@@ -14,13 +14,13 @@ class SplashView extends StatefulWidget {
 }
 
 class SplashViewState extends State<SplashView> {
-  static const String LOGIN_KEY = "loginKey";
+  static const String LOGIN_KEY = "is_logged_in";
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    sharedPref();
+    _checkLoginStatus();
   }
 
   @override
@@ -35,26 +35,23 @@ class SplashViewState extends State<SplashView> {
     );
   }
 
-  void sharedPref() async {
-    var pref = await SharedPreferences.getInstance();
-
-    var isLogin = pref.getBool(LOGIN_KEY);
+  Future<void> _checkLoginStatus() async {
+    var sp = await SharedPreferences.getInstance();
+    bool isLoggedIn = sp.getBool(LOGIN_KEY) ?? false;
 
     Timer(
-      const Duration(seconds: 2),
+      const Duration(seconds: 3),
       () {
-        if (isLogin != null) {
+        if (isLoggedIn) {
           Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => HomeView(),
-              ));
+            context,
+            MaterialPageRoute(builder: (context) => HomeView()),
+          );
         } else {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const LoginView(),
-              ));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LoginView()),
+          );
         }
       },
     );

@@ -1,7 +1,11 @@
+import 'package:chat_application/deshbord/splash_view.dart';
+import 'package:chat_application/deshbord/user_account/login_view.dart';
 import 'package:chat_application/firebase_provider/firebase_provider.dart';
 import 'package:chat_application/modal/message_modal.dart';
 import 'package:chat_application/screens/chat_view.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -11,6 +15,13 @@ class HomeView extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text("My Chat"),
+          actions: [
+            IconButton(
+                onPressed: () async {
+                  await logoutUser(context);
+                },
+                icon: Icon(Icons.logout))
+          ],
         ),
         body: FutureBuilder(
           future: FirebaseProvider.getAllUsers(),
@@ -71,14 +82,20 @@ class HomeView extends StatelessWidget {
                                 subtitle: Text(
                                   messages.isEmpty
                                       ? currUser.uLastName
-                                      : lastMsgModel!.message,
+                                      : (lastMsgModel!.msgType == 'image'
+                                          ? 'Image'
+                                          : lastMsgModel.message),
                                   style: const TextStyle(),
                                 ),
                                 trailing: Column(
                                   children: [
                                     // Text('${DateTime.now()}'),
                                     messages.isNotEmpty
-                                        ? Text(lastMsgModel!.sent)
+                                        ? Text(TimeOfDay.fromDateTime(DateTime
+                                                .fromMillisecondsSinceEpoch(
+                                                    int.parse(
+                                                        lastMsgModel!.sent)))
+                                            .format(context))
                                         : const SizedBox(
                                             width: 0,
                                             height: 0,
@@ -106,6 +123,7 @@ class HomeView extends StatelessWidget {
     if (lastMsg.fromId == FirebaseProvider.currUserId) {
       return Icon(
         Icons.done_all,
+        size: 20,
         color: lastMsg.read != "" ? Colors.blue : Colors.grey,
       );
     } else {
@@ -134,6 +152,22 @@ class HomeView extends StatelessWidget {
           return const SizedBox();
         },
       );
+    }
+  }
+
+  Future<void> logoutUser(BuildContext context) async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      var sp = await SharedPreferences.getInstance();
+      sp.setBool(SplashViewState.LOGIN_KEY, false);
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginView()),
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      print("Error logging out: $e");
     }
   }
 }

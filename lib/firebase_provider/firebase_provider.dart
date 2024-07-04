@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:chat_application/modal/message_modal.dart';
 import 'package:chat_application/modal/user_data_modal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 class FirebaseProvider {
@@ -17,25 +20,26 @@ class FirebaseProvider {
   static Future<void> signInWithEmailAndPassword(
       {required String email,
       required String password,
-      required Widget loginscreen,
+      required Widget loginScreen,
       required BuildContext context}) async {
     try {
       await mAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      print(mAuth.currentUser!.email);
-      print("uid: ${mAuth.currentUser!.uid}");
+      debugPrint(mAuth.currentUser!.email);
+      debugPrint("uid: ${mAuth.currentUser!.uid}");
       Navigator.pushReplacement(
+          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(
-            builder: (context) => loginscreen,
+            builder: (context) => loginScreen,
           ));
     } catch (e) {
       if (e is FirebaseAuthException && e.code == 'user-not-found') {
-        print('No user found for that email.');
+        debugPrint('No user found for that email.');
       } else if (e is FirebaseAuthException && e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        debugPrint('Wrong password provided for that user.');
       } else {
         print(e);
       }
@@ -103,27 +107,72 @@ class FirebaseProvider {
     }
   }
 
-  static void sendMsg(String msg, String toId) {
+// gallery image upload
+
+  static Future<String> uploadImage(File imageFile) async {
+    try {
+      // Create a unique filename for the image
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+      // Reference to the Firebase Storage location
+      Reference ref =
+          FirebaseStorage.instance.ref().child('images/$fileName.jpg');
+
+      // Upload image to Firebase Storage
+      await ref.putFile(imageFile);
+
+      // Get download URL
+      String imageUrl = await ref.getDownloadURL();
+
+      return imageUrl;
+    } catch (e) {
+      debugPrint('Error uploading image: $e');
+      return ''; // Return empty string or handle error as needed
+    }
+  }
+
+  static void sendMsg(String msg, String toId, {String? imageUrl}) async {
     var chatId = getChatID(currUserId, toId);
-    print(currUserId);
-    print("Chat id : $chatId");
+    debugPrint(currUserId);
+    debugPrint("Chat id : $chatId");
 
     var sentTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Determine the message type
+    String msgType = imageUrl != null ? 'image' : 'text';
+    String messageContent = imageUrl ?? msg;
 
     // message send modal
     var newMessage = MessageModel(
         fromId: currUserId,
         mId: sentTime.toString(),
-        message: msg,
+        message: messageContent,
+        msgType: msgType,
         sent: sentTime.toString(),
         toId: toId);
-// firestor
+
+    // firestor
     mFirestore
         .collection(CHATROOM_COLLECTION)
         .doc(chatId)
         .collection("messages")
         .doc(sentTime.toString())
         .set(newMessage.toJson());
+  }
+
+// delete message
+
+  static Future<void> deleteMsg(String msgId, String chatId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(chatId)
+          .collection('messages')
+          .doc(msgId)
+          .delete();
+    } catch (e) {
+      print('Error deleting message: $e');
+    }
   }
 
 // all messages
@@ -146,19 +195,18 @@ class FirebaseProvider {
     var readTime = DateTime.now().millisecondsSinceEpoch;
 
     mFirestore
-        .collection(CHATROOM_COLLECTION) 
+        .collection(CHATROOM_COLLECTION)
         .doc(chatId)
         .collection("messages")
         .doc(mId)
         .update({"read": readTime.toString()});
   }
 
-
-// last chat message  
+// last chat message
   static Stream<QuerySnapshot<Map<String, dynamic>>> getChatLastMsg(
       String chatUserId) {
     var chatId = getChatID(currUserId, chatUserId);
- 
+
     return mFirestore
         .collection(CHATROOM_COLLECTION)
         .doc(chatId)
@@ -181,4 +229,3 @@ class FirebaseProvider {
         .snapshots();
   }
 }
-  
