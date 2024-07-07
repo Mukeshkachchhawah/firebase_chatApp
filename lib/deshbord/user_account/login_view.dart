@@ -25,7 +25,8 @@ class _LoginViewState extends State<LoginView> {
   var confirmPassController = TextEditingController();
   var phoneNoController = TextEditingController();
 
-  bool isCheckPassword = false;
+  bool isCheckPassword = false; // only password
+  bool isConformPassword = false; // conform password check
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class _LoginViewState extends State<LoginView> {
       length: 2, // Number of tabs
       child: Scaffold(
         body: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
+          physics: ScrollPhysics(),
           child: Column(
             children: [
               hSpace(mHeight: 100),
@@ -178,7 +179,18 @@ class _LoginViewState extends State<LoginView> {
               height: 50,
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () async {
+                  User? user = await FirebaseProvider.signInWithGoogle();
+                  if (user != null) {
+                    // Navigate to Home Screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeView(),
+                      ),
+                    );
+                  }
+                },
                 label: const Text("Login with Google"),
                 icon: Image.asset(
                   AppPngLogo.google,
@@ -206,7 +218,8 @@ class _LoginViewState extends State<LoginView> {
                   child: TextFormField(
                     controller: firstNameController,
                     decoration: InputDecoration(
-                      hintText: "User First Name",
+                      hintText: "First Name",
+                      hintStyle: const TextStyle(fontSize: 14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -224,7 +237,8 @@ class _LoginViewState extends State<LoginView> {
                   child: TextFormField(
                     controller: lastNameController,
                     decoration: InputDecoration(
-                      hintText: "User Last Name",
+                      hintText: "Last Name",
+                      hintStyle: const TextStyle(fontSize: 14),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -244,6 +258,7 @@ class _LoginViewState extends State<LoginView> {
               controller: emailController,
               decoration: InputDecoration(
                 hintText: "Email",
+                hintStyle: const TextStyle(fontSize: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -260,6 +275,7 @@ class _LoginViewState extends State<LoginView> {
               controller: phoneNoController,
               decoration: InputDecoration(
                 hintText: "Phone Number",
+                hintStyle: const TextStyle(fontSize: 14),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -276,11 +292,22 @@ class _LoginViewState extends State<LoginView> {
               controller: passwordController,
               decoration: InputDecoration(
                 hintText: "Password",
+                hintStyle: const TextStyle(fontSize: 14),
+                suffixIcon: IconButton(
+                  icon: Icon(isCheckPassword
+                      ? Icons.visibility
+                      : Icons.visibility_off),
+                  onPressed: () {
+                    setState(() {
+                      isCheckPassword = !isCheckPassword;
+                    });
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              obscureText: true,
+              obscureText: !isCheckPassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please enter your password';
@@ -293,11 +320,22 @@ class _LoginViewState extends State<LoginView> {
               controller: confirmPassController,
               decoration: InputDecoration(
                 hintText: "Confirm Password",
+                hintStyle: const TextStyle(fontSize: 14),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      isConformPassword = !isConformPassword;
+                    });
+                  },
+                  icon: Icon(isConformPassword
+                      ? Icons.visibility
+                      : Icons.visibility_off),
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-              obscureText: true,
+              obscureText: !isConformPassword,
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return 'Please confirm your password';

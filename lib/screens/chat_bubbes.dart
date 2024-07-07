@@ -80,7 +80,8 @@ class ChatBubblesWidget extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Icon(
-                        Icons.done_all_outlined,
+                        msg.status == 'read' ? Icons.done_all : Icons.done,
+                        //  Icons.done_all_outlined,
                         size: 16,
                         color: msg.read != "" ? Colors.blue : Colors.grey,
                       ),

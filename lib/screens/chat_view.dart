@@ -1,5 +1,3 @@
-
-
 import 'package:chat_application/screens/chat_bubbes.dart';
 import 'package:flutter/material.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
@@ -85,7 +83,7 @@ class _ChatViewState extends State<ChatView> {
       await FirebaseProvider.deleteMsg(msgId, widget.toId);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Message deleted successfully')),
+        const SnackBar(content: Text('Message deleted successfully')),
       );
     }
   }
@@ -98,7 +96,7 @@ class _ChatViewState extends State<ChatView> {
         actions: [
           if (selectedMessage != null)
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.delete,
                 color: Colors.white,
               ),
