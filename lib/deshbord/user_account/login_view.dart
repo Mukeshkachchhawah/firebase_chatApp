@@ -1,7 +1,7 @@
-import 'package:chat_application/contans/app_png_logo.dart';
 import 'package:chat_application/firebase_provider/firebase_provider.dart';
-import 'package:chat_application/screens/home_view.dart';
-import 'package:chat_application/ui_helper.dart';
+import 'package:chat_application/screens/home/home_view.dart';
+import 'package:chat_application/utils/app_png_logo.dart';
+import 'package:chat_application/utils/ui_helper.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -77,7 +77,9 @@ class _LoginViewState extends State<LoginView> {
               controller: emailController,
               decoration: InputDecoration(
                 hintText: "Email",
-                hintStyle: const TextStyle(fontSize: 14),
+                hintStyle: textStyleFonts14(context),
+                labelText: "Email",
+                labelStyle: textStyleFonts14(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -95,6 +97,7 @@ class _LoginViewState extends State<LoginView> {
               decoration: InputDecoration(
                 hintText: "Password",
                 hintStyle: const TextStyle(fontSize: 14),
+                labelText: "Password",
                 suffixIcon: IconButton(
                   icon: Icon(isCheckPassword
                       ? Icons.visibility
@@ -141,6 +144,11 @@ class _LoginViewState extends State<LoginView> {
                       var sp = await SharedPreferences.getInstance();
                       sp.setBool(SplashViewState.LOGIN_KEY, true);
 
+                      // Show success snack bar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text("User logged in successfully.")),
+                      );
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -158,21 +166,22 @@ class _LoginViewState extends State<LoginView> {
                           const SnackBar(
                               content: Text("Wrong password provided.")),
                         );
+                      } else {
+                        // Show generic error snack bar for other exceptions
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Login failed: ${e.message}")),
+                        );
                       }
+                    } catch (e) {
+                      // show generic error snack bar for non Firebase Exception
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content:
+                              Text("An error occurred : ${e.toString()}")));
                     }
                   }
                 },
                 child: const Text("Login"),
               ),
-            ),
-            hSpace(mHeight: 50),
-            Row(
-              children: [
-                const Expanded(flex: 2, child: Divider()),
-                wSpace(),
-                const Expanded(flex: 1, child: Text("Or With")),
-                const Expanded(flex: 2, child: Divider()),
-              ],
             ),
             hSpace(mHeight: 50),
             SizedBox(
@@ -219,7 +228,9 @@ class _LoginViewState extends State<LoginView> {
                     controller: firstNameController,
                     decoration: InputDecoration(
                       hintText: "First Name",
-                      hintStyle: const TextStyle(fontSize: 14),
+                      hintStyle: textStyleFonts14(context),
+                      labelText: "First Name",
+                      labelStyle: textStyleFonts14(context),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -238,7 +249,9 @@ class _LoginViewState extends State<LoginView> {
                     controller: lastNameController,
                     decoration: InputDecoration(
                       hintText: "Last Name",
-                      hintStyle: const TextStyle(fontSize: 14),
+                      hintStyle: textStyleFonts14(context),
+                      labelText: "Last Name",
+                      labelStyle: textStyleFonts14(context),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -258,7 +271,9 @@ class _LoginViewState extends State<LoginView> {
               controller: emailController,
               decoration: InputDecoration(
                 hintText: "Email",
-                hintStyle: const TextStyle(fontSize: 14),
+                hintStyle: textStyleFonts14(context),
+                labelText: "Email",
+                labelStyle: textStyleFonts14(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -275,7 +290,9 @@ class _LoginViewState extends State<LoginView> {
               controller: phoneNoController,
               decoration: InputDecoration(
                 hintText: "Phone Number",
-                hintStyle: const TextStyle(fontSize: 14),
+                hintStyle: textStyleFonts14(context),
+                labelText: "Phone Number",
+                labelStyle: textStyleFonts14(context),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -292,7 +309,9 @@ class _LoginViewState extends State<LoginView> {
               controller: passwordController,
               decoration: InputDecoration(
                 hintText: "Password",
-                hintStyle: const TextStyle(fontSize: 14),
+                hintStyle: textStyleFonts14(context),
+                labelText: "Password",
+                labelStyle: textStyleFonts14(context),
                 suffixIcon: IconButton(
                   icon: Icon(isCheckPassword
                       ? Icons.visibility

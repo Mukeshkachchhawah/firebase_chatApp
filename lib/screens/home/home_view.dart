@@ -2,12 +2,11 @@ import 'package:chat_application/deshbord/splash_view.dart';
 import 'package:chat_application/deshbord/user_account/login_view.dart';
 import 'package:chat_application/firebase_provider/firebase_provider.dart';
 import 'package:chat_application/modal/message_modal.dart';
-import 'package:chat_application/screens/chat_view.dart';
+import 'package:chat_application/screens/chat_screen/chat_view.dart';
+import 'package:chat_application/screens/user_contect/context_user_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'user_contect/context_user_view.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -35,7 +34,11 @@ class HomeView extends StatelessWidget {
               child: CircularProgressIndicator(),
             );
           }
-
+          /*    if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(
+              child: Text("No users found"),
+            );
+          } */
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: ListView.builder(

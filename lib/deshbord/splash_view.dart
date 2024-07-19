@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:chat_application/contans/app_png_logo.dart';
+import 'package:chat_application/utils/app_png_logo.dart';
 import 'package:chat_application/deshbord/user_account/login_view.dart';
-import 'package:chat_application/screens/home_view.dart';
+import 'package:chat_application/screens/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +14,7 @@ class SplashView extends StatefulWidget {
 }
 
 class SplashViewState extends State<SplashView> {
+  // ignore: constant_identifier_names
   static const String LOGIN_KEY = "is_logged_in";
   @override
   void initState() {
@@ -45,12 +46,12 @@ class SplashViewState extends State<SplashView> {
         if (isLoggedIn) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HomeView()),
+            MaterialPageRoute(builder: (context) => const HomeView()),
           );
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => LoginView()),
+            MaterialPageRoute(builder: (context) => const LoginView()),
           );
         }
       },

@@ -1,6 +1,5 @@
-import 'package:chat_application/screens/chat_bubbes.dart';
+import 'package:chat_application/screens/chat_screen/chat_bubbes.dart';
 import 'package:flutter/material.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:chat_application/firebase_provider/firebase_provider.dart';
 import 'package:chat_application/modal/message_modal.dart';
@@ -19,7 +18,6 @@ class ChatView extends StatefulWidget {
 
 class _ChatViewState extends State<ChatView> {
   final TextEditingController messageController = TextEditingController();
-  bool _isEmojiVisible = false;
   bool hasContent = false;
   Stream<QuerySnapshot<Map<String, dynamic>>>? chatStream;
   MessageModel? selectedMessage;
@@ -33,16 +31,6 @@ class _ChatViewState extends State<ChatView> {
   void getChatStream() async {
     chatStream = await FirebaseProvider.getAllMessage(widget.toId);
     setState(() {});
-  }
-
-  void _toggleEmojiPicker() {
-    setState(() {
-      _isEmojiVisible = !_isEmojiVisible;
-    });
-  }
-
-  void _onEmojiSelected(Emoji emoji) {
-    messageController.text += emoji.emoji;
   }
 
   void _sendImage() async {
@@ -140,7 +128,8 @@ class _ChatViewState extends State<ChatView> {
             ),
           ),
           _buildInputField(),
-          _isEmojiVisible ? _buildEmojiPicker() : Container(),
+/*           _isEmojiVisible ? _buildEmojiPicker() : Container(),
+ */
         ],
       ),
     );
@@ -160,10 +149,6 @@ class _ChatViewState extends State<ChatView> {
                   hasContent = text.isNotEmpty;
                 });
               },
-              leading: IconButton(
-                icon: const Icon(Icons.emoji_emotions),
-                onPressed: _toggleEmojiPicker,
-              ),
               trailing: [
                 IconButton(
                   icon: const Icon(Icons.attach_file),
@@ -202,18 +187,6 @@ class _ChatViewState extends State<ChatView> {
                   ),
                 ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildEmojiPicker() {
-    return SizedBox(
-      height: 250,
-      child: EmojiPicker(
-        onEmojiSelected: (category, emoji) {
-          _onEmojiSelected(emoji);
-        },
-        config: const Config(),
       ),
     );
   }
