@@ -14,7 +14,8 @@ class FirebaseProvider {
 
   static const String USER_COLLECTION = "users";
   static const String CHATROOM_COLLECTION = "chatroom";
-  static const String STATUS_COLLECTION = "status"; // New collection for user statuses
+  static const String STATUS_COLLECTION =
+      "status"; // New collection for user statuses
 
   static String currUserId = mAuth.currentUser!.uid;
 
@@ -168,25 +169,30 @@ class FirebaseProvider {
     String messageContent = imageUrl ?? msg;
 
     var newMessage = MessageModel(
-        fromId: currUserId,
-        mId: sentTime.toString(),
-        message: messageContent,
-        msgType: msgType,
-        sent: sentTime.toString(),
-        toId: toId,
-        status: 'sent'); // Add status field
+      fromId: currUserId,
+      mId: sentTime.toString(),
+      message: messageContent,
+      msgType: msgType,
+      sent: sentTime.toString(),
+      toId: toId,
+      status: 'sent', // Add status field
+    );
 
-    mFirestore
-        .collection(CHATROOM_COLLECTION)
-        .doc(chatId)
-        .collection("messages")
-        .doc(sentTime.toString())
-        .set(newMessage.toJson());
+    try {
+      await mFirestore
+          .collection(CHATROOM_COLLECTION)
+          .doc(chatId)
+          .collection("messages")
+          .doc(sentTime.toString())
+          .set(newMessage.toJson());
 
-    // Check if the recipient is online
-    bool isOnline = await _isUserOnline(toId);
-    if (isOnline) {
-      _updateMessageStatus(chatId, sentTime.toString(), 'delivered');
+      // Check if the recipient is online
+      bool isOnline = await _isUserOnline(toId);
+      if (isOnline) {
+        await _updateMessageStatus(chatId, sentTime.toString(), 'delivered');
+      }
+    } catch (e) {
+      debugPrint('Error sending message: $e');
     }
   }
 
@@ -202,6 +208,9 @@ class FirebaseProvider {
       print('Error deleting message: $e');
     }
   }
+
+
+
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getAllMessage(
       String toId) {
@@ -268,7 +277,7 @@ class FirebaseProvider {
     return doc.data()?['online'] ?? false;
   }
 
-  // Update the message status
+  /*  // Update the message status
   static Future<void> _updateMessageStatus(
       String chatId, String msgId, String status) async {
     await mFirestore
@@ -277,5 +286,15 @@ class FirebaseProvider {
         .collection("messages")
         .doc(msgId)
         .update({"status": status});
+  } */
+
+  static Future<void> _updateMessageStatus(
+      String msgId, String toId, String newContent) async {
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(toId)
+        .collection('messages')
+        .doc(msgId)
+        .update({'content': newContent});
   }
 }

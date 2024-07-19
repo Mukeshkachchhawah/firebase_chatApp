@@ -57,7 +57,8 @@ class ChatBubblesWidget extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    if (msg.msgType == 'text') Text(msg.message),
+                    if (msg.msgType == 'text')
+                      Flexible(child: Text(msg.message)),
                     wSpace(mWidth: 5),
                     Text(
                       '${sentTime.format(context)}',
@@ -132,7 +133,10 @@ class ChatBubblesWidget extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  if (msg.msgType == 'text') Text(msg.message),
+                  if (msg.msgType == 'text')
+                    Text(
+                      msg.message,
+                    ),
                   SizedBox(width: 5),
                   Text(
                     sentTime.format(context),

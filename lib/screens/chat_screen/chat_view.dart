@@ -64,11 +64,13 @@ class _ChatViewState extends State<ChatView> {
   void _deleteSelectedMessage() async {
     if (selectedMessage != null) {
       String msgId = selectedMessage!.mId;
+      String chatId =
+          FirebaseProvider.getChatID(FirebaseProvider.currUserId, widget.toId);
       setState(() {
         selectedMessage = null;
       });
 
-      await FirebaseProvider.deleteMsg(msgId, widget.toId);
+      await FirebaseProvider.deleteMsg(msgId, chatId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Message deleted successfully')),
