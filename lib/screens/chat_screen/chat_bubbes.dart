@@ -7,7 +7,7 @@ class ChatBubblesWidget extends StatelessWidget {
   final MessageModel msg;
   final VoidCallback onDelete;
 
-  ChatBubblesWidget({required this.msg, required this.onDelete});
+  const ChatBubblesWidget({super.key, required this.msg, required this.onDelete});
 
   @override
   Widget build(BuildContext context) {
@@ -108,43 +108,48 @@ class ChatBubblesWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Container(
-          margin: const EdgeInsets.all(11),
-          padding: const EdgeInsets.all(11),
-          decoration: BoxDecoration(
-            color: Colors.blue.shade100,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(21),
-              topRight: Radius.circular(21),
-              bottomRight: Radius.circular(21),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (msg.msgType == 'image')
-                Image.network(
-                  msg.message,
-                  height: 300,
-                  width: 300,
-                  fit: BoxFit.cover,
-                ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (msg.msgType == 'text')
-                    Text(
-                      msg.message,
-                    ),
-                  SizedBox(width: 5),
-                  Text(
-                    sentTime.format(context),
-                    style: TextStyle(fontSize: 12),
-                  ),
-                ],
+        Flexible(
+          child: Container(
+            margin:
+                const EdgeInsets.only(left: 10, right: 50, top: 5, bottom: 5),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade100,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(21),
+                topRight: Radius.circular(21),
+                bottomRight: Radius.circular(21),
               ),
-            ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (msg.msgType == 'image')
+                  Image.network(
+                    msg.message,
+                    height: 300,
+                    width: 300,
+                    fit: BoxFit.cover,
+                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (msg.msgType == 'text')
+                      Flexible(
+                        child: Text(
+                          msg.message,
+                        ),
+                      ),
+                    SizedBox(width: 5),
+                    Text(
+                      sentTime.format(context),
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ],
